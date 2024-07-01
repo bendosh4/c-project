@@ -33,5 +33,6 @@ void errorMsg();
 int lenOfNodeRecursive(FrameNode* head);
 bool changeAllFrameDuration(FrameNode** head, int newLen);
 void free_one_node(FrameNode** ToRemove);
+void startProject();
 
 #endif
