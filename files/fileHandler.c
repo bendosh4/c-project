@@ -6,13 +6,20 @@
 #include <stdio.h>
 #define SIZE 100
 
+/*
+this function open the project (file)
+input: the path of the project, the head of the linked list
+output: none
+runtime: O(n)
+    */
 void openProject(char* path, FrameNode** head)
 {
     FILE* file = fopen(path, "r");
     if (file == NULL)
     {
         printf("File not found!\n");
-        return NULL;
+        system("pause");
+        return;
     }
 
     *head = NULL;
@@ -21,7 +28,7 @@ void openProject(char* path, FrameNode** head)
     char* path2 = (char*)malloc(sizeof(char) * SIZE);
     int duration = 0;
 
-    rewind(file);
+    // read the file in a spical way 
     while (fscanf(file, "%[^,],%d,%[^\n]\n", name, &duration, path2) != EOF)
     {
         newFrame = (FrameNode*)malloc(sizeof(FrameNode));
@@ -34,12 +41,18 @@ void openProject(char* path, FrameNode** head)
         newFrame->next = *head;
         *head = newFrame;
     }
-
     fclose(file);
     free(name);
     free(path2);
+    reverseOrder(head);
 }
 
+/*
+this function saves the project (file)
+input: the head of the linked list and the path of the project
+output: true if the project is saved, false if not
+runtime: O(n)
+    */
 bool saveInFile(FrameNode** head, char* path)
 {
     FILE* file = fopen(path, "w");
@@ -61,6 +74,12 @@ bool saveInFile(FrameNode** head, char* path)
     return true;
 }
 
+/*
+this function gets a choice opens or creates a project (file)
+input: none
+output: 1 if the user chose to open a project, 0 if the user chose to create a project
+runtime: O(1)
+    */
 int openOrcreateProject()
 {
     int choice = 0;
@@ -76,6 +95,12 @@ int openOrcreateProject()
     return choice;
 }
 
+/*
+this function checks if the path is valid
+input: the path of the project
+output: true if the path is valid, false if not
+runtime: O(1)
+    */
 bool checkPath(char* path)
 {
     FILE* file = fopen(path, "r");
@@ -87,38 +112,24 @@ bool checkPath(char* path)
     return false;
 }
 
-void startProject()
+/*
+this function reverses the order of the frames in the linked list
+input: the head of the linked list
+output: none
+runtime: O(n)
+    */
+void reverseOrder(FrameNode** head)
 {
-    FrameNode* head = NULL;
-    int num = -1;
-    int openOrCreate = 0;
-    printf("Welcome to the Magshimim Video Maker!\n");
-    openOrCreate = openOrcreateProject();
-    char* pathOfProject = (char*)malloc(SIZE * sizeof(char));
+    FrameNode* current = *head;
+    FrameNode* prev = NULL;
+    FrameNode* next = NULL;
 
-    if (openOrCreate == 1)
+    while (current != NULL)
     {
-        printf("Enter the path of the project (including project name):\n");
-        insertString(pathOfProject);
-        if (checkPath(pathOfProject))
-        {
-            openProject(pathOfProject, &head);
-        }
-        else
-        {
-            printf("Error! Can't open file, creating a new project\n");
-            head = NULL;
-            system("pause");
-        }
+        next = current->next; // Store the next node
+        current->next = prev; // Reverse the pointer
+        prev = current; // Move to the next node
+        current = next; // Move to the next node
     }
-
-    while (num != 0)
-    {
-        system("cls");
-        num = printMenu();
-        navigate(num, &head);
-
-    }
-
-    free(pathOfProject);
+    *head = prev; // Update the head to the new reversed list
 }
