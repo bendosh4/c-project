@@ -19,12 +19,24 @@
 #define PLAY_THE_MOVIE 7
 #define SAVE_THE_PROJECT 8
 
+/*
+this function gets a pointer to a string and inserts a string in it
+input: a pointer to a string
+output: none
+runtime: O(1)
+    */
 void insertString(char* location)
 {
     fgets(location, SIZE, stdin);
     location[strcspn(location, "\n")] = 0;
 }
 
+/*
+this function prints the menu and gets the choice from the user
+input: none
+output: none
+runtime: O(choice 1-8)
+    */
 int printMenu()
 {
     int choice = 0;
@@ -52,6 +64,12 @@ int printMenu()
     return choice;
 }
 
+/*
+this functiom sreach for a frame in the linked list
+input: the head of the linked list and the name of the frame
+output: true if the frame is found, false if not
+runtime: O(n) len of the linked list
+*/
 bool searchFrame(FrameNode* head, char* name)
 {
     FrameNode* current = head;
@@ -67,13 +85,19 @@ bool searchFrame(FrameNode* head, char* name)
     return false;
 }
 
+/*
+this function adds a frame to the linked list
+input: the head of the linked list
+output: true if the frame is added, false if not
+runtime: O(1)
+    */
 bool addFrame(FrameNode** head)
 {
     FrameNode* current = NULL;
     FrameNode* newFrame = (FrameNode*)malloc(sizeof(FrameNode));
-    newFrame->frame = (Frame*)malloc(sizeof(Frame));
-    newFrame->frame->path = (char*)malloc(sizeof(char) * SIZE); // Adjust size as needed
-    newFrame->frame->name = (char*)malloc(sizeof(char) * SIZE); // Adjust size as needed
+    newFrame->frame = (Frame*)malloc(sizeof(Frame)); // init the frame
+    newFrame->frame->path = (char*)malloc(sizeof(char) * SIZE); // init the path
+    newFrame->frame->name = (char*)malloc(sizeof(char) * SIZE); // init the name
 
     int duration = 0;
 
@@ -88,43 +112,48 @@ bool addFrame(FrameNode** head)
     printf("Enter frame name:\n");
     insertString(newFrame->frame->name);
 
-    // Check if head points to NULL (empty list)
-    if (*head != NULL && searchFrame(*head, newFrame->frame->name))
+    
+    if (*head != NULL && searchFrame(*head, newFrame->frame->name)) // check if head points to NULL (empty list)
     {
         printf("Frame with this name already exists.\n");
         free_one_node(&newFrame);
         return false;
     }
-    else if (!checkPath(newFrame->frame->path))
+    else if (!checkPath(newFrame->frame->path)) // check if the path is valid
     {
         printf("File is not exist!! check path\n");
         free_one_node(&newFrame);
         system("pause");
         return false;
     }
-
-    newFrame->frame->duration = duration;
-    newFrame->next = NULL;
+    
+    newFrame->frame->duration = duration; // adding the frame duration to the linked list
+    newFrame->next = NULL; // adjusting the next pointer
 
     // Insert new frame into the linked list
-    if (*head == NULL)
+    if (*head == NULL) // if the list is empty then the new frame will be the head
     {
-        *head = newFrame;
+        *head = newFrame; // head points to the new frame
     }
-    else
+    else // if the list is not empty then the new frame will be added to
     {
-        current = *head;
-        while (current->next != NULL)
+        current = *head; // current points to the head
+        while (current->next != NULL) // finds the last node in the list
         {
-            current = current->next;
+            current = current->next; // current points to the next node
         }
-        current->next = newFrame;
+        current->next = newFrame; // the last node points to the new frame
     }
 
     return true;
 }
 
-
+/*
+this function free all the nodes in the linked list
+input: the head of the linked list
+output: none
+runtime: O(n)
+    */
 bool freeAllNode(FrameNode** head)
 {
     FrameNode* current = *head;
@@ -140,6 +169,12 @@ bool freeAllNode(FrameNode** head)
     return true;
 }
 
+/*
+this function deletes a frame from the linked list
+input: the name of the frame and the head of the linked
+output: true if the frame is deleted, false if not
+runtime: O(n)
+    */
 bool deleteFrame(char* name, FrameNode** head)
 {
     FrameNode* current = *head;
@@ -166,9 +201,15 @@ bool deleteFrame(char* name, FrameNode** head)
     return false;
 }
 
+/*
+this function changes the location of a frame in the linked list
+input: the name of the frame and the head of the linked list
+output: true if the frame is changed, false if not
+runtime: O(n^2) 2 while loop
+    */
 bool changeFrameLocation(FrameNode** head, char* name, int newLocation)
 {
-    if (newLocation < 1)
+    if (newLocation < 1) // check if the new location is valid
     {
         return false;
     }
@@ -181,30 +222,30 @@ bool changeFrameLocation(FrameNode** head, char* name, int newLocation)
 
     while (current != NULL)
     {
-        if (strcmp(current->frame->name, name) == 0)
+        if (strcmp(current->frame->name, name) == 0) // find the target node
         {
             targetNode = current;
             targetPrev = previous;
         }
-        previous = current;
-        current = current->next;
+        previous = current; // previous points to the current node
+        current = current->next; // current points to the next node
     }
 
-    if (targetNode == NULL)
+    if (targetNode == NULL) // check if the target node is found
     {
         return false;
     }
 
-    if (targetPrev == NULL)
+    if (targetPrev == NULL) // check if the target node is the head
     {
         *head = targetNode->next;
     }
-    else
+    else // if the target node is not the head
     {
         targetPrev->next = targetNode->next;
     }
 
-    if (newLocation == 1)
+    if (newLocation == 1) // check if the new location is the head
     {
         targetNode->next = *head;
         *head = targetNode;
@@ -215,19 +256,19 @@ bool changeFrameLocation(FrameNode** head, char* name, int newLocation)
     previous = NULL;
     index = 1;
 
-    while (current != NULL && index < newLocation)
+    while (current != NULL && index < newLocation) // find the new location
     {
         previous = current;
         current = current->next;
         index++;
     }
 
-    if (previous != NULL)
+    if (previous != NULL) // check if the new location is not the head
     {
         previous->next = targetNode;
         targetNode->next = current;
     }
-    else
+    else // if the new location is the head
     {
         targetNode->next = *head;
         *head = targetNode;
@@ -236,6 +277,12 @@ bool changeFrameLocation(FrameNode** head, char* name, int newLocation)
     return true;
 }
 
+/*
+this function changes the duration of a frame in the linked list
+input: the name of the frame and the head of the linked list
+output: true if the frame is changed, false if not
+runtime: O(n)
+    */
 bool changeFrameTime(char* name, FrameNode** head, int newLen)
 {
     FrameNode* current = *head;
@@ -252,6 +299,12 @@ bool changeFrameTime(char* name, FrameNode** head, int newLen)
     return false;
 }
 
+/*
+this function prints all the frames in the linked list
+input: the head of the linked list
+output: none
+runtime: O(n)
+    */
 void printFrames(FrameNode* head)
 {
     FrameNode* current = head;
@@ -267,12 +320,24 @@ void printFrames(FrameNode* head)
     system("pause");
 }
 
+/*
+this function prints a error message
+input: none
+output: none
+runtime: O(1)
+    */
 void errorMsg()
 {
     printf("Something went wrong, check parameters!!\n");
     system("pause");
 }
 
+/*
+this function gets the length of the linked list
+input: the current Frame of the linked list
+output: the length of the linked list
+runtime: O(n)
+    */
 int lenOfNodeRecursive(FrameNode* head)
 {
     if (head == NULL)
@@ -282,6 +347,11 @@ int lenOfNodeRecursive(FrameNode* head)
     return 1 + lenOfNodeRecursive(head->next);
 }
 
+/*
+this function changes the duration of all the frames in the linked list
+input: the head of the linked list and the new duration
+output: true if the duration is changed, false if not
+    */
 bool changeAllFrameDuration(FrameNode** head, int newLen)
 {
     FrameNode* current = *head;
@@ -293,6 +363,12 @@ bool changeAllFrameDuration(FrameNode** head, int newLen)
     return true;
 }
 
+/*
+this fumction navigates bettwen the cases in the menu
+input: the head of the linked list
+output: none
+runtime: O(n)
+    */
 void navigate(int choice, FrameNode** head)
 {
     char* name = (char*)malloc(sizeof(char) * SIZE);
@@ -397,6 +473,12 @@ void navigate(int choice, FrameNode** head)
     free(name);
 }
 
+/*
+this function free 1 node from the linked list
+input: the node to free
+output: none
+runtime: O(1)
+    */
 void free_one_node(FrameNode** ToRemove)
 {
     FrameNode* node = *ToRemove;
@@ -406,3 +488,44 @@ void free_one_node(FrameNode** ToRemove)
     free(node);
 }
 
+/*
+this function start the program
+input: none
+output: none
+runtime: O(n)
+    */
+void startProject()
+{
+    FrameNode* head = NULL;
+    int num = -1;
+    int openOrCreate = 0;
+    printf("Welcome to the Magshimim Video Maker!\n");
+    openOrCreate = openOrcreateProject();
+    char* pathOfProject = (char*)malloc(SIZE * sizeof(char));
+
+    if (openOrCreate == 1)
+    {
+        printf("Enter the path of the project (including project name):\n");
+        insertString(pathOfProject);
+        if (checkPath(pathOfProject))
+        {
+            openProject(pathOfProject, &head);
+        }
+        else
+        {
+            printf("Error! Can't open file, creating a new project\n");
+            head = NULL;
+            system("pause");
+        }
+    }
+
+    while (num != 0)
+    {
+        system("cls");
+        num = printMenu();
+        navigate(num, &head);
+
+    }
+
+    free(pathOfProject);
+}
